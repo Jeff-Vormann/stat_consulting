@@ -47,7 +47,7 @@ sigma2 <- step_params[5]
 zeromass2 <- step_params[6]
 mu3 <- step_params[7]  
 sigma3 <- step_params[8]
-zeromass3f <- step_params[9]
+zeromass3 <- step_params[9]
 
 
 shape1 <- ifelse(sigma1 != 0, (mu1 / sigma1)^2, 1) 
