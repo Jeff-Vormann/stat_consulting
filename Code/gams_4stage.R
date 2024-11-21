@@ -44,13 +44,17 @@ step_params <- hmm_model$mle$stepPar
 
 
 mu1 <- step_params[1]  
-sigma1 <- step_params[2]  
+sigma1 <- step_params[2]
+zeromass1 <- step_parms[3]
 mu2 <- step_params[4]  
-sigma2 <- step_params[5] 
+sigma2 <- step_params[5]
+zeromass2 <- step_parms[6]
 mu3 <- step_params[7]  
-sigma3 <- step_params[8]  
+sigma3 <- step_params[8] 
+zeromass3 <- step_parms[6]
 mu4 <- step_params[10] 
 sigma4 <- step_params[11] 
+zeromass4 <- step_parms[12]
 
 
 shape1 <- ifelse(sigma1 != 0, (mu1 / sigma1)^2, 1) 
