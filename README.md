@@ -23,3 +23,9 @@ Contains various exploratory data analyses (EDAs) and visualizations created thr
 
 -HMM Scatter Plots: Scatter plots overlaid with hidden states inferred from the fitted HMMs, providing insights into behavioral patterns.
 
+
+# Quesitons
+
+Gamsbock: difference between Terminal and Collar (2022/2021 data)
+
+Can we get the "actual" weather data? Not use fishy data scraping?
