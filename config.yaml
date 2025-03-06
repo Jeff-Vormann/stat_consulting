@@ -1,0 +1,22 @@
+# Name des HMM-Durchlaufs
+name: TestRun1
+
+# Welcher Datensatz soll verwendet werden?
+# Möglichkeiten:
+# - Gams
+# - Deer
+# - Ursina
+# - Thomas
+dataset_name: Thomas
+
+# Vorverarbeitung
+# Möglichkeiten:
+# - L2norm        # L2-Norm von X und Y
+# - onlyX         # Nur X-Achse
+# - XNotCensored  # X-Achse, nicht zensiert
+# - sum       # sum aus X und Y
+preprocessing: L2norm
+
+# Anzahl der HMM-Zustände
+# Beispiel: 2, 3, 4, ...
+nbStates: 2
