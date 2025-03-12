@@ -7,7 +7,7 @@ name: TestRun1
 # - Deer
 # - Ursina
 # - Thomas
-dataset_name: Thomas
+dataset_name: Deer
 
 # Vorverarbeitung
 # Möglichkeiten:
@@ -19,4 +19,16 @@ preprocessing: L2norm
 
 # Anzahl der HMM-Zustände
 # Beispiel: 2, 3, 4, ...
-nbStates: 2
+nbStates: 3
+
+# Temperature
+# Möglichkeiten:
+# None
+# Intern
+# Extern
+# Mix
+# Rain
+temperature: Intern
+
+
+

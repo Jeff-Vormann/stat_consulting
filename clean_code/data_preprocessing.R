@@ -25,6 +25,7 @@ prepareHMMData <- function() {
   
   dataset_name <- config$dataset_name
   preprocessing <- config$preprocessing
+  temperature <- config$temperature
   
   # 3) Dateipfad ermitteln
   if (!dataset_name %in% names(datasetFileMap)) {
@@ -40,6 +41,7 @@ prepareHMMData <- function() {
     skip   = 0
   )
   
+  
   if (preprocessing == "L2norm") {
     data$preprocessed <- sqrt(data$X_acceleration^2 + data$Y_acceleration^2)
   } else if (preprocessing == "onlyX") {
@@ -49,12 +51,39 @@ prepareHMMData <- function() {
   } else {
     stop("Unbekannte Preprocessing-Methode: ", preprocessing)
   }
+  
 
   # 6) moveHMM vorbereiten
   data$cum_x <- cumsum(data$preprocessed)
   data$cum_y <- 0
   
   hmm_data <- prepData(data, type = "UTM", coordNames = c("cum_x", "cum_y"))
+  
+  # 7) Adding different Temperature to the data if wanted
+  data_temp <- read.table("Data/Temperature/order_126368_data.txt"
+                          , stringsAsFactors = FALSE, 
+                          skip = 2,
+                          header = TRUE, col.names=c("ID", "Time2", "Temp", "Rain", "Rain2"))
+  
+  data$Time2 <- gsub("[^0-9]", "", format(as.POSIXct(data$time), "%Y%m%d%H"))
+  joined_df <- merge(data, data_temp, by = ("Time2"), all.x = TRUE)
+  data <- joined_df[order(joined_df$time), ]
+  
+  if (temperature == "None") {
+    hmm_data$temperature <- data$temperature
+  } else if (temperature == "Intern") {
+    hmm_data$temperature <- data$temperature
+  } else if (temperature == "Extern") {
+    hmm_data$temperature <- data$Temp
+  } else if (temperature == "Mix") {
+    hmm_data$temperature <- sqrt(data$Temp * data$temperature)
+  }else if (temperature == "Rain") {
+    hmm_data$temperature <- (data$Temp + data$Rain2^2)
+  }else {
+    stop("Unbekannte tempreture-Methode: ", temperature)
+  }
+
+  
   
   return(hmm_data)
 }

@@ -17,20 +17,29 @@ source("clean_code/init_params.R", local = FALSE)
 init_params <- getInitialParameters()
 print("--init_params--")
 print(init_params)
+
 # 4) Konfigurationsdatei laden, um weitere Parameter (wie nbStates, dataset_name, preprocessing) zu verwenden
 config <- yaml::yaml.load_file("config.yaml")
 
+
 # 5) Eindeutigen Dateinamen für das RDS erzeugen:
-rds_name <- paste0("clean_code/Rds/", 
+if (config$temperature == "None"){
+  rds_name <- paste0("clean_code/Rds/", 
                    config$dataset_name, "_", 
                    config$nbStates, "states_", 
                    config$preprocessing, ".rds")
+} else {
+  rds_name <- paste0("clean_code/Rds/", 
+                     config$dataset_name, "_", 
+                     config$nbStates, "states_", 
+                     config$preprocessing, "_temperature", ".rds")
+}
 
 # 6) HMM-Training nur durchführen, wenn das RDS nicht existiert:
 if (file.exists(rds_name)) {
   cat("RDS existiert bereits. Lade Modell:", rds_name, "\n")
   hmm_model <- readRDS(rds_name)
-} else {
+} else if(config$temperature == "None"){
   # HMM-Modell anpassen – nbStates aus config verwenden
   hmm_model <- fitHMM(
     data = hmm_data,
@@ -38,6 +47,19 @@ if (file.exists(rds_name)) {
     stepDist = "gamma",
     angleDist = "none", 
     stepPar0 = init_params
+  )
+  # Modell speichern
+  saveRDS(hmm_model, file = rds_name)
+  cat("Neues Modell trainiert und gespeichert als:", rds_name, "\n")
+} else {
+  # HMM-Modell anpassen – nbStates aus config verwenden
+  hmm_model <- fitHMM(
+    data = hmm_data,
+    nbStates = config$nbStates,
+    stepDist = "gamma",
+    angleDist = "none", 
+    stepPar0 = init_params,
+    formula = ~ temperature
   )
   # Modell speichern
   saveRDS(hmm_model, file = rds_name)
@@ -147,7 +169,7 @@ ggsave(
   plot = hist_with_density,
   width = 16,
   height = 9,
-  dpi = 1000
+  dpi = 100
 )
 
 # Scatterplot (Beispiel)
@@ -166,6 +188,6 @@ ggsave(
   plot = scatter_plot,
   width = 16,
   height = 9,
-  dpi = 1000
+  dpi = 100
 )
 print(rds_name)
