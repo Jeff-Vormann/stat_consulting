@@ -29,3 +29,30 @@ Contains various exploratory data analyses (EDAs) and visualizations created thr
 Gamsbock: difference between Terminal and Collar (2022/2021 data)
 
 Can we get the "actual" weather data? Not use fishy data scraping?
+
+
+
+# To-do
+
+Karten analyse, Bewungs-analyse
+    Reisen
+    Orte
+        Wichtig: Zeiten festhalten, Winter/Sommer
+        States in an den Orten verändern sich anders
+            n Hmm's (1s pro Habitat, Reisen,...)
+
+Hyparamter Hmm's
+    Mix and match
+        beste lösung
+        expermentieren mit anderen Werten
+            -neue Temperature
+            -andere bewegungen
+            -höhen-meter
+            -Wetter
+            -Jahreszeiten, Wetter
+            -Uhrzeit
+            -Jagdgebiete in der nähe?
+
+
+
+
