@@ -32,7 +32,8 @@ if (config$temperature == "None"){
   rds_name <- paste0("clean_code/Rds/", 
                      config$dataset_name, "_", 
                      config$nbStates, "states_", 
-                     config$preprocessing, "_temperature", ".rds")
+                     config$preprocessing, "_temperature",
+                     config$temperature, ".rds")
 }
 
 # 6) HMM-Training nur durchführen, wenn das RDS nicht existiert:
@@ -59,7 +60,7 @@ if (file.exists(rds_name)) {
     stepDist = "gamma",
     angleDist = "none", 
     stepPar0 = init_params,
-    formula = ~ temperature
+    formula = ~temperature
   )
   # Modell speichern
   saveRDS(hmm_model, file = rds_name)
@@ -67,6 +68,9 @@ if (file.exists(rds_name)) {
 }
 
 print(hmm_model)
+
+#Evaluation
+AIC(hmm_model)
 
 # Zustände zuweisen
 states <- viterbi(hmm_model)

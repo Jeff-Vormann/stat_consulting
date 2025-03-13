@@ -1,5 +1,6 @@
 # data_preprocessing.R
 library(moveHMM)
+library(zoo)
 
 # Mapping: dataset_name -> CSV-Dateipfad
 datasetFileMap <- list(
@@ -52,7 +53,7 @@ prepareHMMData <- function() {
     stop("Unbekannte Preprocessing-Methode: ", preprocessing)
   }
   
-
+  
   # 6) moveHMM vorbereiten
   data$cum_x <- cumsum(data$preprocessed)
   data$cum_y <- 0
@@ -76,14 +77,13 @@ prepareHMMData <- function() {
   } else if (temperature == "Extern") {
     hmm_data$temperature <- data$Temp
   } else if (temperature == "Mix") {
-    hmm_data$temperature <- sqrt(data$Temp * data$temperature)
+    hmm_data$temperature <- (data$Temp^2 * data$temperature)
   }else if (temperature == "Rain") {
     hmm_data$temperature <- (data$Temp + data$Rain2^2)
   }else {
     stop("Unbekannte tempreture-Methode: ", temperature)
   }
-
-  
+  hmm_data$temperature <- na.locf(hmm_data$temperature)
   
   return(hmm_data)
 }
