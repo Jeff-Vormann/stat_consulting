@@ -11,40 +11,31 @@ source("clean_code/data_preprocessing.R", local = FALSE)
 
 # 2) Vorverarbeitete Daten holen (alles erfolgt über config.yaml)
 hmm_data <- prepareHMMData()
-
+tail(hmm_data)
 # 3) Initiale Parameter aus der Config holen (config wird intern geladen)
 source("clean_code/init_params.R", local = FALSE)
 init_params <- getInitialParameters()
 print("--init_params--")
 print(init_params)
 
-DM <- list(
-  step = list(
-    mean = config$emission_mean,  # Formel für Mittelwert
-    sd   = ~1     # Formel für sd
-  )
-)
 
 # 4) Konfigurationsdatei laden, um weitere Parameter (wie nbStates, dataset_name, preprocessing) zu verwenden
 config <- yaml::yaml.load_file("config.yaml")
 
 
 # 5) Eindeutigen Dateinamen für das RDS erzeugen:
-if (config$temperature == "None"){
-  rds_name <- paste0("clean_code/Rds/", 
-                   config$dataset_name, "_", 
-                   config$nbStates, "states_", 
-                   config$preprocessing, ".rds")
-} else {
-  rds_name <- paste0("clean_code/Rds/", 
+
+  rds_name <- paste0("clean_code/Rds/covariates/", 
                      config$dataset_name, "_", 
                      config$nbStates, "states_", 
-                     config$preprocessing, "_temperature",
-                     config$temperature, ".rds")
-}
+                     config$preprocessing, 
+                     "_T=",config$temperature,
+                     "_F=",config$formula,
+                      ".rds")
+
 
 # 6) HMM-Training nur durchführen, wenn das RDS nicht existiert:
-if (file.exists(rds_name)) {
+if (file.exists("rds_name")) {
   cat("RDS existiert bereits. Lade Modell:", rds_name, "\n")
   hmm_model <- readRDS(rds_name)
 } else {
@@ -56,7 +47,6 @@ if (file.exists(rds_name)) {
     angleDist = "none", 
     stepPar0 = init_params,
     formula = as.formula(config$formula)
-    #formula = config$formula
     #DM= config$emission_mean
   )
   # Modell speichern
@@ -170,7 +160,8 @@ ggsave(
   plot = hist_with_density,
   width = 16,
   height = 9,
-  dpi = 100
+  dpi = 100,
+  bg = "white"
 )
 
 # Scatterplot (Beispiel)
@@ -193,3 +184,5 @@ ggsave(
   bg = "white"
 )
 print(rds_name)
+tail(hmm_data,1000)
+print(hmm_model)

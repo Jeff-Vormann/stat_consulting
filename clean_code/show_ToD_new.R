@@ -7,7 +7,9 @@ config_path <- "config.yaml"
 config <- yaml::yaml.load_file(config_path)
 
 
-
+hmm_data$time <- ifelse(grepl("^\\d{4}-\\d{2}-\\d{2}$", hmm_data$time),
+                   paste0(hmm_data$time, " 00:00:00"),
+                   hmm_data$time)
 # 3) Zeitspalte in POSIXct umwandeln (ggf. anpassen je nach Datenformat)
 hmm_data$time <- as.POSIXct(hmm_data$time, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 

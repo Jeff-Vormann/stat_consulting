@@ -80,11 +80,41 @@ prepareHMMData <- function() {
     hmm_data$temperature <- (data$Temp^2 * data$temperature)
   }else if (temperature == "Rain") {
     hmm_data$temperature <- (data$Temp + data$Rain2^2)
+  }else if (temperature == "only_Rain") {
+    hmm_data$temperature <- (data$Rain2)
   }else {
     stop("Unbekannte tempreture-Methode: ", temperature)
   }
   hmm_data$temp <- na.locf(hmm_data$temperature)
   
   #todo tod und season
+  time_UTC <- ifelse(grepl("^\\d{4}-\\d{2}-\\d{2}$", hmm_data$time),
+                          paste0(hmm_data$time, " 00:00:00"),
+                          hmm_data$time)
+  # 3) Zeitspalte in POSIXct umwandeln (ggf. anpassen je nach Datenformat)
+  time_UTC <- as.POSIXct(time_UTC, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+  # 2) Stunde/Minute extrahieren, in [0,24) umwandeln
+  hourNumeric <- as.numeric(format(time_UTC, "%H"))
+  minNumeric  <- as.numeric(format(time_UTC, "%M"))
+  # => Stundenanteil  +  Minuten/60
+  hourOfDay   <- hourNumeric + minNumeric/60
+  
+  # 3) Fraction in [0,1) => (hourOfDay / 24)
+  fracOfDay   <- hourOfDay / 24
+  
+  # 4) Cosinus => 0 Uhr = Hochpunkt (cos(0)=1), 12 Uhr = Tiefpunkt (cos(pi)=-1)
+  ToD_values  <- cos(2 * pi * fracOfDay)
+  
+  # 5) In hmm_data speichern (Zeilen-zu-Zeilen)
+  hmm_data$ToD <- ToD_values
+  
+  dayOfYear <- as.numeric(format(time_UTC, "%j"))
+  # Offset so, dass Tag 172 (21. Juni) => cos(0)=1 => Hochpunkt = Sommer
+  # (im nördlichen Halbkugel-Szenario)
+  fracOfYear <- (dayOfYear - 172) / 365
+  
+  # Saisonalität als Cosinus => 1 ~ Sommer, -1 ~ Winter
+  Season_values <- cos(2 * pi * fracOfYear)
+  hmm_data$season <- Season_values
   return(hmm_data)
 }

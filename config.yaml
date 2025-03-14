@@ -7,7 +7,7 @@ name: TestRun1
 # - Deer
 # - Ursina
 # - Thomas
-dataset_name: Thomas
+dataset_name: Deer
 
 # Vorverarbeitung
 # Möglichkeiten:
@@ -15,11 +15,11 @@ dataset_name: Thomas
 # - onlyX         # Nur X-Achse
 # - XNotCensored  # X-Achse, nicht zensiert
 # - sum       # sum aus X und Y
-preprocessing: L2norm
+preprocessing: onlyX
 
 # Anzahl der HMM-Zustände
 # Beispiel: 2, 3, 4, ...
-nbStates: 2
+nbStates: 3
 
 # Temperature
 # Möglichkeiten:
@@ -28,7 +28,8 @@ nbStates: 2
 # Extern
 # Mix
 # Rain
-temperature: None
+# only_Rain
+temperature: only_Rain
 
 # Transitions
 #formula: "~1"
@@ -36,7 +37,7 @@ temperature: None
 #formula: "~temp"
 #formula: "~ToD"
 #formula: "~ToD + season + temp"
-formula: "~1"
+formula: "~temp"
 
 
 # Emission
