@@ -68,8 +68,8 @@ if (file.exists(rds_name)) {
     stepDist = "gamma",
     angleDist = "none", 
     stepPar0 = init_params,
-    formula = ~ temperature,
-    beta0 = beta0
+    formula = ~ preprocessed,
+    #beta0 = beta0
   )
   # Modell speichern
   #saveRDS(hmm_model, file = rds_name)
