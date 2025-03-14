@@ -7,7 +7,7 @@ name: TestRun1
 # - Deer
 # - Ursina
 # - Thomas
-dataset_name: Deer
+dataset_name: Thomas
 
 # Vorverarbeitung
 # Möglichkeiten:
@@ -19,7 +19,7 @@ preprocessing: L2norm
 
 # Anzahl der HMM-Zustände
 # Beispiel: 2, 3, 4, ...
-nbStates: 3
+nbStates: 2
 
 # Temperature
 # Möglichkeiten:
@@ -28,7 +28,22 @@ nbStates: 3
 # Extern
 # Mix
 # Rain
-temperature: Intern
+temperature: None
+
+# Transitions
+#formula: "~1"
+#formula: "~season"
+#formula: "~temp"
+#formula: "~ToD"
+#formula: "~ToD + season + temp"
+formula: "~1"
 
 
+# Emission
+#emission_mean: "~1"
+#emission_mean: "~season"
+#emission_mean: "~temp"
+#emission_mean: "~ToD"
+#emission_mean: "~ToD + season + temp"
+emission_mean: "~1"
 

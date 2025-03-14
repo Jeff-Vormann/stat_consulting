@@ -71,7 +71,7 @@ prepareHMMData <- function() {
   data <- joined_df[order(joined_df$time), ]
   
   if (temperature == "None") {
-    hmm_data$temperature <- data$temperature
+    hmm_data$temperature <- 0
   } else if (temperature == "Intern") {
     hmm_data$temperature <- data$temperature
   } else if (temperature == "Extern") {
@@ -83,7 +83,8 @@ prepareHMMData <- function() {
   }else {
     stop("Unbekannte tempreture-Methode: ", temperature)
   }
-  hmm_data$temperature <- na.locf(hmm_data$temperature)
+  hmm_data$temp <- na.locf(hmm_data$temperature)
   
+  #todo tod und season
   return(hmm_data)
 }

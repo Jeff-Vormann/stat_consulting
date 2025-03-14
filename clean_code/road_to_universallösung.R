@@ -18,6 +18,13 @@ init_params <- getInitialParameters()
 print("--init_params--")
 print(init_params)
 
+DM <- list(
+  step = list(
+    mean = config$emission_mean,  # Formel für Mittelwert
+    sd   = ~1     # Formel für sd
+  )
+)
+
 # 4) Konfigurationsdatei laden, um weitere Parameter (wie nbStates, dataset_name, preprocessing) zu verwenden
 config <- yaml::yaml.load_file("config.yaml")
 
@@ -40,18 +47,6 @@ if (config$temperature == "None"){
 if (file.exists(rds_name)) {
   cat("RDS existiert bereits. Lade Modell:", rds_name, "\n")
   hmm_model <- readRDS(rds_name)
-} else if(config$temperature == "None"){
-  # HMM-Modell anpassen – nbStates aus config verwenden
-  hmm_model <- fitHMM(
-    data = hmm_data,
-    nbStates = config$nbStates,
-    stepDist = "gamma",
-    angleDist = "none", 
-    stepPar0 = init_params
-  )
-  # Modell speichern
-  saveRDS(hmm_model, file = rds_name)
-  cat("Neues Modell trainiert und gespeichert als:", rds_name, "\n")
 } else {
   # HMM-Modell anpassen – nbStates aus config verwenden
   hmm_model <- fitHMM(
@@ -60,7 +55,9 @@ if (file.exists(rds_name)) {
     stepDist = "gamma",
     angleDist = "none", 
     stepPar0 = init_params,
-    formula = ~temperature
+    formula = as.formula(config$formula)
+    #formula = config$formula
+    #DM= config$emission_mean
   )
   # Modell speichern
   saveRDS(hmm_model, file = rds_name)
@@ -185,13 +182,14 @@ scatter_plot <- ggplot(hmm_data, aes(x = time, y = step, color = factor(state)))
 
 print(scatter_plot)
 
-
+print(config$formula)
 
 ggsave(
   filename = paste0(rds_name,"_scatter_plot", ".png"),
   plot = scatter_plot,
   width = 16,
   height = 9,
-  dpi = 100
+  dpi = 100,
+  bg = "white"
 )
 print(rds_name)
