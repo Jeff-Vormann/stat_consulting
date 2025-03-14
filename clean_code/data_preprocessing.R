@@ -78,8 +78,10 @@ prepareHMMData <- function() {
     hmm_data$temperature <- data$Temp
   } else if (temperature == "Mix") {
     hmm_data$temperature <- (data$Temp^2 * data$temperature)
-  }else if (temperature == "Rain") {
+  }else if (temperature == "Humidity") {
     hmm_data$temperature <- (data$Temp + data$Rain2^2)
+  }else if (temperature == "Rain") {
+    hmm_data$temperature <- data$Rain2*100
   }else {
     stop("Unbekannte tempreture-Methode: ", temperature)
   }

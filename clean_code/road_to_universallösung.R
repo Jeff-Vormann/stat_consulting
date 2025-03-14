@@ -25,9 +25,9 @@ config <- yaml::yaml.load_file("config.yaml")
 # 5) Eindeutigen Dateinamen für das RDS erzeugen:
 if (config$temperature == "None"){
   rds_name <- paste0("clean_code/Rds/", 
-                   config$dataset_name, "_", 
-                   config$nbStates, "states_", 
-                   config$preprocessing, ".rds")
+                     config$dataset_name, "_", 
+                     config$nbStates, "states_", 
+                     config$preprocessing, ".rds")
 } else {
   rds_name <- paste0("clean_code/Rds/", 
                      config$dataset_name, "_", 
@@ -54,17 +54,26 @@ if (file.exists(rds_name)) {
   cat("Neues Modell trainiert und gespeichert als:", rds_name, "\n")
 } else {
   # HMM-Modell anpassen – nbStates aus config verwenden
+  beta0 <- matrix(c(-50, 20,   # Transition 1→2: low baseline, positive temp effect
+                    -500, 20,   # Transition 1→3: low baseline, positive temp effect
+                    -5, -20,   # Transition 2→1: low baseline, negative temp effect
+                    5, 20,   # Transition 2→3: low baseline, positive temp effect
+                    -5, -20,   # Transition 3→1: low baseline, negative temp effect
+                    -5, -20),  # Transition 3→2: low baseline, negative temp effect
+                  nrow = 2, byrow = TRUE)
+  
   hmm_model <- fitHMM(
     data = hmm_data,
     nbStates = config$nbStates,
     stepDist = "gamma",
     angleDist = "none", 
     stepPar0 = init_params,
-    formula = ~temperature
+    formula = ~ temperature,
+    beta0 = beta0
   )
   # Modell speichern
-  saveRDS(hmm_model, file = rds_name)
-  cat("Neues Modell trainiert und gespeichert als:", rds_name, "\n")
+  #saveRDS(hmm_model, file = rds_name)
+  #cat("Neues Modell trainiert und gespeichert als:", rds_name, "\n")
 }
 
 print(hmm_model)
