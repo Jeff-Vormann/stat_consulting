@@ -1,11 +1,11 @@
-library(moveHMM)
+
 library(gamlss)
 library(gamlss.dist)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(yaml)
-
+library(momentuHMM)
 # 1) Externes Preprocessing-Skript einbinden (dies liest config.yaml intern)
 source("clean_code/data_preprocessing.R", local = FALSE)
 
@@ -25,12 +25,14 @@ config <- yaml::yaml.load_file("config.yaml")
 
 # 5) Eindeutigen Dateinamen für das RDS erzeugen:
 
-  rds_name <- paste0("clean_code/Rds/covariates/", 
+  rds_name <- paste0("clean_code/Rds/covariates/",
+                     "M_",
                      config$dataset_name, "_", 
                      config$nbStates, "states_", 
                      config$preprocessing, 
                      "_T=",config$temperature,
                      "_F=",config$formula,
+                     "_Mu=",config$emission_mean,
                       ".rds")
 
 
@@ -40,84 +42,35 @@ if (file.exists("rds_name")) {
   hmm_model <- readRDS(rds_name)
 } else {
   # HMM-Modell anpassen – nbStates aus config verwenden
-  hmm_model <- fitHMM(
+  hmm_model <- momentuHMM::fitHMM(
     data = hmm_data,
     nbStates = config$nbStates,
-    stepDist = "gamma",
-    angleDist = "none", 
-    stepPar0 = init_params,
-    formula = as.formula(config$formula)
-    #DM= config$emission_mean
+    dist = list(step = "gamma"),
+    formula = as.formula(config$formula),
+    Par0 = list(step = init_params),
+    DM = list(step = list(mean = as.formula(config$emission_mean), sd = ~1, zeromass = ~1))
   )
   # Modell speichern
-  saveRDS(hmm_model, file = rds_name)
-  cat("Neues Modell trainiert und gespeichert als:", rds_name, "\n")
+  #saveRDS(hmm_model, file = rds_name)
+  #cat("Neues Modell trainiert und gespeichert als:", rds_name, "\n")
 }
 
-print(hmm_model)
-
-#Evaluation
 AIC(hmm_model)
 
-# Zustände zuweisen
-states <- viterbi(hmm_model)
-hmm_data$state <- states
+hmm_data$state <- momentuHMM::viterbi(hmm_model)
+sm <- as.matrix(hmm_model$mle$step)
+sm <- as.matrix(hmm_model$CIreal$step$est)
+state_proportions <- prop.table(table(hmm_data$state)) 
 
-# Für weitere Auswertungen: (Annahme: Die ursprünglichen Daten liegen in "data")
-# Hier müsste ggf. der originale Datensatz geladen werden, falls nicht bereits vorhanden.
-# data$state <- states
-
-step_params <- hmm_model$mle$stepPar
-
-# (Beispielhafte Weiterverarbeitung: Berechnung von gamma-Parametern und Plotting)
-mu1 <- step_params[1]  
-sigma1 <- step_params[2]
-zeromass1 <- step_params[3]
-mu2 <- step_params[4]  
-sigma2 <- step_params[5]
-zeromass2 <- step_params[6]
-if (config$nbStates >= 3) {
-  mu3 <- step_params[7]  
-  sigma3 <- step_params[8] 
-  zeromass3 <- step_params[9]
-}
-if (config$nbStates >= 4) {
-  mu4 <- step_params[10] 
-  sigma4 <- step_params[11] 
-  zeromass4 <- step_params[12]
-}
-
-# Beispiel: Berechnung der gamma-Verteilungsparameter
-shape1 <- ifelse(sigma1 != 0, (mu1 / sigma1)^2, 1) 
-scale1 <- ifelse(sigma1 != 0, (sigma1^2) / mu1, 1)
-if (config$nbStates >= 2) {
-  shape2 <- ifelse(sigma2 != 0, (mu2 / sigma2)^2, 1) 
-  scale2 <- ifelse(sigma2 != 0, (sigma2^2) / mu2, 1)
-}
-if (config$nbStates >= 3) {
-  shape3 <- ifelse(sigma3 != 0, (mu3 / sigma3)^2, 1) 
-  scale3 <- ifelse(sigma3 != 0, (sigma3^2) / mu3, 1)
-}
-if (config$nbStates >= 4) {
-  shape4 <- ifelse(sigma4 != 0, (mu4 / sigma4)^2, 1) 
-  scale4 <- ifelse(sigma4 != 0, (sigma4^2) / mu4, 1)
-}
-
-# Beispiel für ein Histogramm mit Dichtekurven:
 x_vals <- seq(min(hmm_data$step, na.rm = TRUE), max(hmm_data$step, na.rm = TRUE), length.out = 1000)
-total_count <- nrow(hmm_data)
-state_counts <- table(hmm_data$state)
-state_proportions <- prop.table(state_counts) 
-print(state_proportions)
-density_data <- data.frame(
-  x = x_vals,
-  State1 = dgamma(x_vals, shape = shape1, scale = scale1) * state_proportions[1] * (1 - zeromass1),
-  State2 = dgamma(x_vals, shape = shape2, scale = scale2) * state_proportions[2] * (1 - zeromass2),
-  State3 = if (config$nbStates >= 3)
-    dgamma(x_vals, shape = shape3, scale = scale3) * state_proportions[3] * (1 - zeromass3) else NA,
-  State4 = if (config$nbStates >= 4)
-    dgamma(x_vals, shape = shape4, scale = scale4) * state_proportions[4] * (1 - zeromass4) else NA
-)
+density_data <- data.frame(x  = x_vals)
+
+for(i in 1:config$nbStates) {
+  density_data[[paste0("State", i)]] <- dgamma(x_vals,
+                                               shape = (sm["mean", i] / sm["sd", i])^2,
+                                               scale = (sm["sd", i]^2) / sm["mean", i]
+  ) * state_proportions[i] * (1 - sm["zeromass", i])
+}
 
 # Berechnung der Summen-Dichte als Summe aller Zustandsdichten (NA werden dabei ignoriert)
 density_data$Summe <- rowSums(density_data[ , -1], na.rm = TRUE)
@@ -184,5 +137,5 @@ ggsave(
   bg = "white"
 )
 print(rds_name)
-tail(hmm_data,1000)
 print(hmm_model)
+print(list(step = init_params))

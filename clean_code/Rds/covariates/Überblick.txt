@@ -31,3 +31,32 @@ season     0.14875450 -0.1869257
 temp       0.01040257 -0.0165449
 
 regen auch sehr gering
+
+okay jetzt neu fox alles
+Regression coeffs for step parameters:
+--------------------------------------
+     mean_1:(Intercept) mean_1:ToD mean_1:season mean_1:temp mean_2:(Intercept) mean_2:ToD mean_2:season mean_2:temp
+[1,]           1.416661   0.211073    -0.0219743  -0.0379511         0.03906454  0.5980156      5.564438   -1.103731
+     sd_1:(Intercept) sd_2:(Intercept) zeromass_1:(Intercept) zeromass_2:(Intercept)
+[1,]        0.7375462        -4.442592              -5.464873               8.618611
+
+step parameters (based on mean covariate values):
+-------------------------------------------------
+             state 1   state 2
+mean     4.123330859 1.0398376
+sd       2.090798774 0.0117654
+zeromass 0.004215038 0.9998193
+
+Regression coeffs for the transition probabilities:
+---------------------------------------------------
+                 1 -> 2      2 -> 1
+(Intercept) -1.79541435 -2.75339478
+ToD         -1.26752212  0.26364548
+season       0.01917683  0.26819333
+temp         0.16826016  0.05322199
+
+Transition probability matrix (based on mean covariate values):
+---------------------------------------------------------------
+           state 1   state 2
+state 1 0.85758981 0.1424102
+state 2 0.05989521 0.9401048

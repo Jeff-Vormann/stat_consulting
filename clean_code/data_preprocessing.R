@@ -1,6 +1,7 @@
 # data_preprocessing.R
 library(moveHMM)
 library(zoo)
+library(momentuHMM)
 
 # Mapping: dataset_name -> CSV-Dateipfad
 datasetFileMap <- list(
@@ -58,7 +59,7 @@ prepareHMMData <- function() {
   data$cum_x <- cumsum(data$preprocessed)
   data$cum_y <- 0
   
-  hmm_data <- prepData(data, type = "UTM", coordNames = c("cum_x", "cum_y"))
+  hmm_data <- momentuHMM::prepData(data, type = "UTM", coordNames = c("cum_x", "cum_y"))
   
   # 7) Adding different Temperature to the data if wanted
   data_temp <- read.table("Data/Temperature/order_126368_data.txt"
@@ -91,6 +92,7 @@ prepareHMMData <- function() {
   time_UTC <- ifelse(grepl("^\\d{4}-\\d{2}-\\d{2}$", hmm_data$time),
                           paste0(hmm_data$time, " 00:00:00"),
                           hmm_data$time)
+
   # 3) Zeitspalte in POSIXct umwandeln (ggf. anpassen je nach Datenformat)
   time_UTC <- as.POSIXct(time_UTC, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
   # 2) Stunde/Minute extrahieren, in [0,24) umwandeln
@@ -107,14 +109,35 @@ prepareHMMData <- function() {
   
   # 5) In hmm_data speichern (Zeilen-zu-Zeilen)
   hmm_data$ToD <- ToD_values
-  
+  0
   dayOfYear <- as.numeric(format(time_UTC, "%j"))
+  tail(dayOfYear)
+  
   # Offset so, dass Tag 172 (21. Juni) => cos(0)=1 => Hochpunkt = Sommer
-  # (im nördlichen Halbkugel-Szenario)
   fracOfYear <- (dayOfYear - 172) / 365
+  
+  na_indices <- which(is.na(dayOfYear))
+
   
   # Saisonalität als Cosinus => 1 ~ Sommer, -1 ~ Winter
   Season_values <- cos(2 * pi * fracOfYear)
   hmm_data$season <- Season_values
+  #nan durch vorgänger ersetzen
+  # Season: fehlende Werte interpolieren und dann standardisieren
+  hmm_data$season <- na.approx(hmm_data$season, na.rm = FALSE, rule = 2)
+  cat("Es wurden", sum(is.na(hmm_data$season)), "fehlende Werte in 'season' ersetzt.\n")
+  hmm_data$season <- as.vector(scale(hmm_data$season))
+  cat("Season: mean =", mean(hmm_data$season), "sd =", sd(hmm_data$season), "\n")
+  # Temperature: fehlende Werte interpolieren und dann standardisieren
+  hmm_data$temp <- na.approx(hmm_data$temp, na.rm = FALSE, rule = 2)
+  cat("Es wurden", sum(is.na(hmm_data$temp)), "fehlende Werte in 'temp' ersetzt.\n")
+  hmm_data$temp <- as.vector(scale(hmm_data$temp))
+  cat("temp: mean =", mean(hmm_data$temp), "sd =", sd(hmm_data$temp), "\n")
+  # Time of Day: fehlende Werte interpolieren und dann standardisieren
+  hmm_data$ToD <- na.approx(hmm_data$ToD, na.rm = FALSE, rule = 2)
+  cat("Es wurden", sum(is.na(hmm_data$ToD)), "fehlende Werte in 'ToD' ersetzt.\n")
+  hmm_data$ToD <- as.vector(scale(hmm_data$ToD))
+  cat("ToD: mean =", mean(hmm_data$ToD), "sd =", sd(hmm_data$ToD), "\n")
   return(hmm_data)
+  ##todo varianz
 }

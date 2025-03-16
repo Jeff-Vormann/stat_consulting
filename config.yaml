@@ -29,7 +29,7 @@ nbStates: 3
 # Mix
 # Rain
 # only_Rain
-temperature: only_Rain
+temperature: Extern
 
 # Transitions
 #formula: "~1"
@@ -37,7 +37,7 @@ temperature: only_Rain
 #formula: "~temp"
 #formula: "~ToD"
 #formula: "~ToD + season + temp"
-formula: "~temp"
+formula: "~1"
 
 
 # Emission

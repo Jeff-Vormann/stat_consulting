@@ -63,7 +63,7 @@ getInitialParameters <- function() {
       stop("Unbekannte Preprocessing-Methode: ", preproc)
     }
     zeromass0 <- orig_zeromass
-    return(c(mu0, sigma0, zeromass0))
+    #return(c(mu0, sigma0, zeromass0))
     
   } else if (nbStates == 2 && dataset_name == "Thomas") {
     # Originalparameter für Thomas, 2 Hidden States
@@ -84,7 +84,7 @@ getInitialParameters <- function() {
       stop("Unbekannte Preprocessing-Methode: ", preproc)
     }
     zeromass0 <- orig_zeromass
-    return(c(mu0, sigma0, zeromass0))
+    #return(c(mu0, sigma0, zeromass0))
     
   } else if (nbStates == 3 && dataset_name == "Deer") {
     # Originalparameter für Deer, 3 Hidden States
@@ -105,7 +105,7 @@ getInitialParameters <- function() {
       stop("Unbekannte Preprocessing-Methode: ", preproc)
     }
     zeromass0 <- orig_zeromass
-    return(c(mu0, sigma0, zeromass0))
+    #return(c(mu0, sigma0, zeromass0))
     
   } else if (nbStates == 4 && dataset_name == "Deer") {
     # Originalparameter für Deer, 4 Hidden States
@@ -126,7 +126,7 @@ getInitialParameters <- function() {
       stop("Unbekannte Preprocessing-Methode: ", preproc)
     }
     zeromass0 <- orig_zeromass
-    return(c(mu0, sigma0, zeromass0))
+    #return(c(mu0, sigma0, zeromass0))
     
   } else if (nbStates == 3 && dataset_name == "Gams") {
     # Originalparameter für Gams, 3 Hidden States
@@ -146,7 +146,7 @@ getInitialParameters <- function() {
       stop("Unbekannte Preprocessing-Methode: ", preproc)
     }
     zeromass0 <- orig_zeromass
-    return(c(mu0, sigma0, zeromass0))
+    #return(c(mu0, sigma0, zeromass0))
     
   } else if (nbStates == 4 && dataset_name == "Gams") {
     # Originalparameter für Gams, 4 Hidden States
@@ -168,15 +168,50 @@ getInitialParameters <- function() {
       stop("Unbekannte Preprocessing-Methode: ", preproc)
     }
     zeromass0 <- orig_zeromass
-    return(c(mu0, sigma0, zeromass0))
+    #return(c(mu0, sigma0, zeromass0))
     
   } else if (nbStates == 2 ) {
       mu0       <- c(1, 100)
       sigma0    <- c(1, 10)
       zeromass0 <- c(0.99, 0.01)
-      return(c(mu0, sigma0, zeromass0))
+      #return(c(mu0, sigma0, zeromass0))
   } else {
     stop("Keine Initialparameter für die Konfiguration (", dataset_name, 
          ", nbStates=", nbStates, ", preprocessing=", preproc, ") gefunden!")
   }
+  # Erweiterung der mu0-Werte, falls emission_mean nicht "~1" ist:
+if (config$emission_mean != "~1") {
+  plus_matches <- gregexpr("\\+", config$emission_mean, perl = TRUE)[[1]]
+  # Falls kein "+" gefunden wird, sollen keine extra Zeilen hinzugefügt werden (nur der Intercept)
+  print(plus_matches)
+  numExtra <- if (plus_matches[1] == -1) 0 else length(plus_matches)
+  print(numExtra)
+  new_mu0 <- c()
+  for (i in 1:nbStates) {
+    # Für jeden Zustand: der ursprüngliche Intercept gefolgt von numExtra Nullen
+    new_mu0 <- c(new_mu0, mu0[i], rep(0, numExtra+1))
+  }
+  mu0 <- new_mu0
+}
+
+  if (config$emission_mean == "~1") {
+    final_mat <- rbind(
+      matrix(mu0, nrow = 1),
+      matrix(sigma0, nrow = 1),
+      matrix(zeromass0, nrow = 1)
+    )
+    rownames(final_mat) <- c("mu0", "sigma0", "zeromass0")
+    colnames(final_mat) <- paste("State", 1:nbStates)
+  } else {
+    p <- length(mu0) / nbStates  # p = 1 + Anzahl der Pluszeichen
+    mean_mat <- matrix(mu0, nrow = p, ncol = nbStates)
+    final_mat <- rbind(
+      mean_mat,
+      matrix(sigma0, nrow = 1, ncol = nbStates),
+      matrix(zeromass0, nrow = 1, ncol = nbStates)
+    )
+    rownames(final_mat) <- c(paste0("mu", 1:p), "sigma0", "zeromass0")
+    colnames(final_mat) <- paste("State", 1:nbStates)
+  }
+return(final_mat)
 }
