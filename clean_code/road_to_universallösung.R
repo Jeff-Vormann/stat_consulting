@@ -17,6 +17,7 @@ source("clean_code/init_params.R", local = FALSE)
 init_params <- getInitialParameters()
 print("--init_params--")
 print(init_params)
+#init_params <- convert_init_params(init_params)
 
 
 # 4) Konfigurationsdatei laden, um weitere Parameter (wie nbStates, dataset_name, preprocessing) zu verwenden
@@ -48,7 +49,9 @@ if (file.exists("rds_name")) {
     dist = list(step = "gamma"),
     formula = as.formula(config$formula),
     Par0 = list(step = init_params),
-    DM = list(step = list(mean = as.formula(config$emission_mean), sd = ~1, zeromass = ~1))
+    DM = list(step = list(mean = as.formula(config$emission_mean), sd = ~1, zeromass = ~1)),
+    #nlmPar = list(print.level = 2, gradtol = 1e-6, stepmax = 1000, steptol = 1e-6, iterlim = 50, hessian = TRUE)
+    
   )
   # Modell speichern
   #saveRDS(hmm_model, file = rds_name)

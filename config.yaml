@@ -7,7 +7,7 @@ name: TestRun1
 # - Deer
 # - Ursina
 # - Thomas
-dataset_name: Deer
+dataset_name: Gams
 
 # Vorverarbeitung
 # Möglichkeiten:

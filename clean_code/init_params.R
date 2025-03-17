@@ -41,9 +41,9 @@ getInitialParameters <- function() {
   
   if (nbStates == 2 && dataset_name == "Ursina") {
     # Originalparameter (L2norm) für Ursina, 2 Hidden States
-    orig_mu       <- c(0.1, 7)
-    orig_sigma    <- c(0.1, 3)
-    orig_zeromass <- c(0.99, 0.01)
+    orig_mu       <- c(1.6146293, 5.527444647)
+    orig_sigma    <- c(0.6116561, 2.144948978)
+    orig_zeromass <- c(0.9471619, 0.000988718)
     
     if (preproc == "L2norm") {
       # L2norm: Nutze die Originalwerte
@@ -67,9 +67,10 @@ getInitialParameters <- function() {
     
   } else if (nbStates == 2 && dataset_name == "Thomas") {
     # Originalparameter für Thomas, 2 Hidden States
-    orig_mu       <- c(0.1, 7)
-    orig_sigma    <- c(0.1, 3)
-    orig_zeromass <- c(0.99, 0.01)
+    orig_mu       <- c(1.6582551, 5.269759482)
+    orig_sigma    <- c(0.6057272, 1.948164009)
+    orig_zeromass <- c(0.9327754, 0.001006425)
+    
     
     if (preproc == "L2norm") {
       mu0    <- orig_mu
@@ -90,14 +91,15 @@ getInitialParameters <- function() {
     # Originalparameter für Deer, 3 Hidden States
     orig_mu       <- c(0.1, 17, 110)
     orig_sigma    <- c(0.1, 12, 48)
-    orig_zeromass <- c(0.9, 0.2, 0.1)
+    orig_zeromass <- c(1.00000000, 0.04975792, 2.597579e-04)
     
     if (preproc == "L2norm") {
       mu0    <- orig_mu
       sigma0 <- orig_sigma
     } else if (preproc == "onlyX") {
-      mu0    <- orig_mu * (1 / sqrt(1 + 0.927^2))  # Formel: x = L2 / sqrt(1+0.927^2)
-      sigma0 <- orig_sigma * (1 / sqrt(1 + 0.927^2))
+      
+      mu0    <- c(0.06992973, 11.93499429, 8.213985e+01)
+      sigma0 <- c(0.08597213, 10.79249024, 3.147756e+01)
     } else if (preproc == "sum") {
       mu0    <- orig_mu * ((1+0.927) / sqrt(1 + 0.927^2))  # Formel: x+y = L2 * (1+0.927)/sqrt(1+0.927^2)
       sigma0 <- orig_sigma * ((1+0.927) / sqrt(1 + 0.927^2))
@@ -132,13 +134,13 @@ getInitialParameters <- function() {
     # Originalparameter für Gams, 3 Hidden States
     orig_mu       <- c(0.1, 9, 109)
     orig_sigma    <- c(0.1, 9, 39)
-    orig_zeromass <- c(0.9, 1e-9, 0.1)
+    orig_zeromass <- c(1.00000000, 9.998569e-10, 6.035567e-04)
     if (preproc == "L2norm") {
       mu0    <- orig_mu
       sigma0 <- orig_sigma
     } else if (preproc == "onlyX") {
-      mu0    <- orig_mu * (1 / sqrt(1 + 0.8^2))   # Formel: x = L2 / sqrt(1+0.8^2)
-      sigma0 <- orig_sigma * (1 / sqrt(1 + 0.8^2))
+      mu0    <- c(0.07130388, 1.327620e+01, 8.535669e+01)
+      sigma0 <- c(0.10650287, 1.470568e+01, 2.901432e+01)
     } else if (preproc == "sum") {
       mu0    <- orig_mu * ((1+0.8) / sqrt(1 + 0.8^2))  # Formel: x+y = L2 * (1+0.8)/sqrt(1+0.8^2)
       sigma0 <- orig_sigma * ((1+0.8) / sqrt(1 + 0.8^2))
@@ -215,3 +217,28 @@ if (config$emission_mean != "~1") {
   }
 return(final_mat)
 }
+
+convert_init_params <- function(init_params) {
+  # Kopie des Originals, um das Format beizubehalten
+  new_params <- init_params
+  
+  # Für jede Spalte (jeden Zustand) umrechnen:
+  for (state in colnames(init_params)) {
+    cat(state)
+    mu <- init_params["mu0", state]
+    sigma <- init_params["sigma0", state]
+    # Berechnung der Gamma-Parameter:
+    shape <- (mu / sigma)^2
+    scale <- (sigma^2) / mu
+    # Überschreibe die entsprechenden Zeilen:
+    new_params["mu0", state] <- shape
+    new_params["sigma0", state] <- scale
+    # mu2 und zeromass0 bleiben unverändert
+  }
+  
+  return(new_params)
+}
+
+# Beispielanwendung:
+new_init_params <- convert_init_params(init_params)
+print(new_init_params)
