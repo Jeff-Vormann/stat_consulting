@@ -9,6 +9,12 @@ datasetFileMap <- list(
   "Ursina"   = "Data/Fox/Ursina_clean.csv",
   "Deer"   = "Data/red_deer/deer_clean.csv"
 )
+datasetFileMap2 <- list(
+  "Gams" = "Data/Gamsbock/Gamsbock_GPS_clean.csv",
+  "Thomas"    = "Data/Fox/Thomas_GPS_clean.csv",
+  "Ursina"   = "Data/Fox/Ursina_GPS_clean.csv",
+  "Deer"   = "Data/red_deer/Deer_GPS_clean.csv"
+)
 
 prepareHMMData <- function() {
   
@@ -61,14 +67,20 @@ prepareHMMData <- function() {
   hmm_data <- prepData(data, type = "UTM", coordNames = c("cum_x", "cum_y"))
   
   # 7) Adding different Temperature to the data if wanted
-  data_temp <- read.table("Data/Temperature/order_126368_data.txt"
+  if (temperature != "None") {
+    data_temp <- read.table("Data/Temperature/order_126368_data.txt"
                           , stringsAsFactors = FALSE, 
                           skip = 2,
                           header = TRUE, col.names=c("ID", "Time2", "Temp", "Rain", "Rain2"))
   
-  data$Time2 <- gsub("[^0-9]", "", format(as.POSIXct(data$time), "%Y%m%d%H"))
-  joined_df <- merge(data, data_temp, by = ("Time2"), all.x = TRUE)
-  data <- joined_df[order(joined_df$time), ]
+    data$Time2 <- gsub("[^0-9]", "", format(as.POSIXct(data$time), "%Y%m%d%H"))
+    joined_df <- merge(data, data_temp, by = ("Time2"), all.x = TRUE)
+    data <- joined_df[order(joined_df$time), ]
+    
+    
+  }
+  
+  
   
   if (temperature == "None") {
     hmm_data$temperature <- data$temperature

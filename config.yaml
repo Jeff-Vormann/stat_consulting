@@ -29,7 +29,7 @@ nbStates: 3
 # Mix
 # Rain
 # Humidity
-temperature: Rain
+temperature: Extern
 
 
 
