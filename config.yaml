@@ -37,7 +37,7 @@ temperature: Extern
 #formula: "~temp"
 #formula: "~ToD"
 #formula: "~ToD + season + temp"
-formula: "~1"
+formula: "~temp"
 
 
 # Emission
@@ -46,5 +46,5 @@ formula: "~1"
 #emission_mean: "~temp"
 #emission_mean: "~ToD"
 #emission_mean: "~ToD + season + temp"
-emission_mean: "~1"
+emission_mean: "~temp"
 

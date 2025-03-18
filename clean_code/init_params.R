@@ -91,15 +91,15 @@ getInitialParameters <- function() {
     # Originalparameter für Deer, 3 Hidden States
     orig_mu       <- c(0.1, 17, 110)
     orig_sigma    <- c(0.1, 12, 48)
-    orig_zeromass <- c(1.00000000, 0.04975792, 2.597579e-04)
+    orig_zeromass <- c(18.483802,  -2.949383 , -8.258894)
     
     if (preproc == "L2norm") {
       mu0    <- orig_mu
       sigma0 <- orig_sigma
     } else if (preproc == "onlyX") {
       
-      mu0    <- c(0.06992973, 11.93499429, 8.213985e+01)
-      sigma0 <- c(0.08597213, 10.79249024, 3.147756e+01)
+      mu0    <- c(-2.660312  , 2.479482  , 4.408424)
+      sigma0 <- c(-2.454431  , 2.378860 ,  3.449274)
     } else if (preproc == "sum") {
       mu0    <- orig_mu * ((1+0.927) / sqrt(1 + 0.927^2))  # Formel: x+y = L2 * (1+0.927)/sqrt(1+0.927^2)
       sigma0 <- orig_sigma * ((1+0.927) / sqrt(1 + 0.927^2))
@@ -134,13 +134,14 @@ getInitialParameters <- function() {
     # Originalparameter für Gams, 3 Hidden States
     orig_mu       <- c(0.1, 9, 109)
     orig_sigma    <- c(0.1, 9, 39)
-    orig_zeromass <- c(1.00000000, 9.998569e-10, 6.035567e-04)
+    orig_zeromass <- c(18.420681 ,-20.723409 , -7.412067)
     if (preproc == "L2norm") {
       mu0    <- orig_mu
       sigma0 <- orig_sigma
     } else if (preproc == "onlyX") {
-      mu0    <- c(0.07130388, 1.327620e+01, 8.535669e+01)
-      sigma0 <- c(0.10650287, 1.470568e+01, 2.901432e+01)
+      mu0    <- c(-2.640805 ,  2.585973  , 4.446839)
+      sigma0 <- c(-2.239583  , 2.688234   ,3.367790)
+      
     } else if (preproc == "sum") {
       mu0    <- orig_mu * ((1+0.8) / sqrt(1 + 0.8^2))  # Formel: x+y = L2 * (1+0.8)/sqrt(1+0.8^2)
       sigma0 <- orig_sigma * ((1+0.8) / sqrt(1 + 0.8^2))
@@ -215,30 +216,7 @@ if (config$emission_mean != "~1") {
     rownames(final_mat) <- c(paste0("mu", 1:p), "sigma0", "zeromass0")
     colnames(final_mat) <- paste("State", 1:nbStates)
   }
+ 
 return(final_mat)
 }
 
-convert_init_params <- function(init_params) {
-  # Kopie des Originals, um das Format beizubehalten
-  new_params <- init_params
-  
-  # Für jede Spalte (jeden Zustand) umrechnen:
-  for (state in colnames(init_params)) {
-    cat(state)
-    mu <- init_params["mu0", state]
-    sigma <- init_params["sigma0", state]
-    # Berechnung der Gamma-Parameter:
-    shape <- (mu / sigma)^2
-    scale <- (sigma^2) / mu
-    # Überschreibe die entsprechenden Zeilen:
-    new_params["mu0", state] <- shape
-    new_params["sigma0", state] <- scale
-    # mu2 und zeromass0 bleiben unverändert
-  }
-  
-  return(new_params)
-}
-
-# Beispielanwendung:
-new_init_params <- convert_init_params(init_params)
-print(new_init_params)

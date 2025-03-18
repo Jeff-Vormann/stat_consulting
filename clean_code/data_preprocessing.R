@@ -139,5 +139,4 @@ prepareHMMData <- function() {
   hmm_data$ToD <- as.vector(scale(hmm_data$ToD))
   cat("ToD: mean =", mean(hmm_data$ToD), "sd =", sd(hmm_data$ToD), "\n")
   return(hmm_data)
-  ##todo varianz
 }
