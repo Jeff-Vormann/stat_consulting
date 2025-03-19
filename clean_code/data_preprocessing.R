@@ -4,9 +4,9 @@ library(zoo)
 
 # Mapping: dataset_name -> CSV-Dateipfad
 datasetFileMap <- list(
-  "Gams" = "Data/Gamsbock/Gamsbock_clean_since_18_04_2021.csv",
-  "Thomas"    = "Data/Fox/Thomas_clean.csv",
-  "Ursina"   = "Data/Fox/Ursina_clean.csv",
+  "Gams" = "Data/Gamsbock/Gamsbock_finished.csv",
+  "Thomas"    = "Data/Fox/Thomas_finished.csv",
+  "Ursina"   = "Data/Fox/Ursina_finished.csv",
   "Deer"   = "Data/red_deer/red_deer_finished.csv"
 )
 
@@ -55,7 +55,6 @@ prepareHMMData <- function() {
   }
   
   
-
   
   if (temperature == "None") {
     data$temperature <- 1
