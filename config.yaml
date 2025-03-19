@@ -7,7 +7,7 @@ name: TestRun1
 # - Deer
 # - Ursina
 # - Thomas
-dataset_name: Gams
+dataset_name: Deer
 
 # Vorverarbeitung
 # Möglichkeiten:
@@ -29,7 +29,7 @@ nbStates: 3
 # Mix
 # Rain
 # Humidity
-temperature: Extern
+temperature: None
 
 
 

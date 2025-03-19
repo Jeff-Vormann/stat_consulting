@@ -7,14 +7,9 @@ datasetFileMap <- list(
   "Gams" = "Data/Gamsbock/Gamsbock_clean_since_18_04_2021.csv",
   "Thomas"    = "Data/Fox/Thomas_clean.csv",
   "Ursina"   = "Data/Fox/Ursina_clean.csv",
-  "Deer"   = "Data/red_deer/deer_clean.csv"
+  "Deer"   = "Data/red_deer/red_deer_finished.csv"
 )
-datasetFileMap2 <- list(
-  "Gams" = "Data/Gamsbock/Gamsbock_GPS_clean.csv",
-  "Thomas"    = "Data/Fox/Thomas_GPS_clean.csv",
-  "Ursina"   = "Data/Fox/Ursina_GPS_clean.csv",
-  "Deer"   = "Data/red_deer/Deer_GPS_clean.csv"
-)
+
 
 prepareHMMData <- function() {
   
@@ -60,44 +55,29 @@ prepareHMMData <- function() {
   }
   
   
+
+  
+  if (temperature == "None") {
+    data$temperature <- 1
+  } else if (temperature == "Intern") {
+    data$temperature <- data$temperature_intern
+  } else if (temperature == "Extern") {
+    data$temperature <- data$temperature_extern
+  } else if (temperature == "Mix") {
+    data$temperature <- (data$temperature_intern^2 * data$temperature_extern)
+  }else if (temperature == "Humidity") {
+    data$temperature <- (data$temperature_intern + data$Rain2^2)
+  }else if (temperature == "Rain") {
+    data$temperature <- data$Rain2*100
+  }else {
+    stop("Unbekannte tempreture-Methode: ", temperature)
+  }
+  
   # 6) moveHMM vorbereiten
   data$cum_x <- cumsum(data$preprocessed)
   data$cum_y <- 0
   
   hmm_data <- prepData(data, type = "UTM", coordNames = c("cum_x", "cum_y"))
-  
-  # 7) Adding different Temperature to the data if wanted
-  if (temperature != "None") {
-    data_temp <- read.table("Data/Temperature/order_126368_data.txt"
-                          , stringsAsFactors = FALSE, 
-                          skip = 2,
-                          header = TRUE, col.names=c("ID", "Time2", "Temp", "Rain", "Rain2"))
-  
-    data$Time2 <- gsub("[^0-9]", "", format(as.POSIXct(data$time), "%Y%m%d%H"))
-    joined_df <- merge(data, data_temp, by = ("Time2"), all.x = TRUE)
-    data <- joined_df[order(joined_df$time), ]
-    
-    
-  }
-  
-  
-  
-  if (temperature == "None") {
-    hmm_data$temperature <- data$temperature
-  } else if (temperature == "Intern") {
-    hmm_data$temperature <- data$temperature
-  } else if (temperature == "Extern") {
-    hmm_data$temperature <- data$Temp
-  } else if (temperature == "Mix") {
-    hmm_data$temperature <- (data$Temp^2 * data$temperature)
-  }else if (temperature == "Humidity") {
-    hmm_data$temperature <- (data$Temp + data$Rain2^2)
-  }else if (temperature == "Rain") {
-    hmm_data$temperature <- data$Rain2*100
-  }else {
-    stop("Unbekannte tempreture-Methode: ", temperature)
-  }
-  hmm_data$temperature <- na.locf(hmm_data$temperature)
   
   return(hmm_data)
 }
