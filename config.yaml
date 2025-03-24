@@ -15,7 +15,7 @@ dataset_name: Gams
 # - onlyX         # Nur X-Achse
 # - XNotCensored  # X-Achse, nicht zensiert
 # - sum       # sum aus X und Y
-preprocessing: onlyX
+preprocessing: L2norm
 
 # Anzahl der HMM-Zustände
 # Beispiel: 2, 3, 4, ...
@@ -35,16 +35,16 @@ temperature: Extern
 #formula: "~1"
 #formula: "~season"
 #formula: "~temp"
-#formula: "~ToD"
-#formula: "~ToD + season + temp"
-formula: "~temp"
+#formula: "~elevation"
+#formula: "~ToD + season +  evation + temp "
+formula: "~ToD + season +  evation + temp "
 
 
 # Emission
 #emission_mean: "~1"
 #emission_mean: "~season"
 #emission_mean: "~temp"
-#emission_mean: "~ToD"
+#emission_mean: "~evation "
 #emission_mean: "~ToD + season + temp"
-emission_mean: "~temp"
+emission_mean: "~ToD + season +  evation + temp "
 

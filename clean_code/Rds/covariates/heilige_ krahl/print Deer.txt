@@ -1,0 +1,44 @@
+> print(state_proportions)
+
+        1         2         3 
+0.2646623 0.2374254 0.4979123 
+> print(hmm_model)
+Value of the maximum log-likelihood: -385533.9 
+
+
+Regression coeffs for step parameters:
+--------------------------------------
+     mean_1:(Intercept) mean_1:ToD mean_1:season mean_1:elevation mean_1:temp mean_2:(Intercept) mean_2:ToD mean_2:season mean_2:elevation mean_2:temp
+[1,]          -7.632576   2.478063      4.698127                0           0           2.499946 -0.0258849     0.0706743      -0.06315012  0.01657713
+     mean_3:(Intercept) mean_3:ToD mean_3:season mean_3:elevation mean_3:temp sd_1:(Intercept) sd_2:(Intercept) sd_3:(Intercept) zeromass_1:(Intercept)
+[1,]           4.636967 0.06647922     0.2131789        0.0145104   0.0444544         42.48081         2.455797         3.612486               221.4672
+     zeromass_2:(Intercept) zeromass_3:(Intercept)
+[1,]              -3.676927              -7.495496
+
+step parameters (based on mean covariate values):
+-------------------------------------------------
+              state 1     state 2      state 3
+mean     4.844114e-04 12.18183676 1.032308e+02
+sd       2.813075e+18 11.65572197 3.705808e+01
+zeromass 1.000000e+00  0.02467629 5.552728e-04
+
+Regression coeffs for the transition probabilities:
+---------------------------------------------------
+                1 -> 2       1 -> 3     2 -> 1      2 -> 3      3 -> 1       3 -> 2
+(Intercept) -1.4789994 -3.540366909 -1.1793491 -1.55440635 -4.64006469 -2.848948177
+ToD          0.1607079  0.188312058 -0.2340207  0.04491496 -0.64676785 -0.420415831
+season       0.3814996  0.035283352 -0.3325839  0.02473580 -0.42238426  0.147055242
+elevation    0.1652286 -0.107922378 -0.4134730 -0.41382766 -0.05809321  0.073663356
+temp         0.2273033 -0.001170597 -0.6688711 -0.50608457 -0.29328603  0.009713393
+
+Transition probability matrix (based on mean covariate values):
+---------------------------------------------------------------
+            state 1    state 2    state 3
+state 1 0.795628335 0.18129631 0.02307536
+state 2 0.202449368 0.65841731 0.13913332
+state 3 0.009045911 0.05424058 0.93671351
+
+Initial distribution:
+---------------------
+   state 1    state 2    state 3 
+0.50707630 0.49165621 0.00126749 

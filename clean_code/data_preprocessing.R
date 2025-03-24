@@ -2,15 +2,16 @@
 library(moveHMM)
 library(zoo)
 library(momentuHMM)
+library(data.table)
+library(lubridate)
 
 # Mapping: dataset_name -> CSV-Dateipfad
 datasetFileMap <- list(
-  "Gams" = "Data/Gamsbock/Gamsbock_clean_since_18_04_2021.csv",
-  "Thomas"    = "Data/Fox/Thomas_clean.csv",
-  "Ursina"   = "Data/Fox/Ursina_clean.csv",
-  "Deer"   = "Data/red_deer/deer_clean.csv"
+  "Gams" = "Data/Gamsbock/Gamsbock_finished.csv",
+  "Thomas"    = "Data/Fox/Thomas_finished.csv",
+  "Ursina"   = "Data/Fox/Ursina_finished.csv",
+  "Deer"   = "Data/red_deer/red_deer_finished.csv"
 )
-
 prepareHMMData <- function() {
   
   # 1) YAML-Config laden
@@ -34,7 +35,7 @@ prepareHMMData <- function() {
     stop("Unbekannter Datensatzname: ", dataset_name)
   }
   file_path <- datasetFileMap[[dataset_name]]
-  
+
   # 4) CSV-Datei einlesen (hier Annahmen zu header=FALSE, sep=";", skip=1)
   data <- read.csv(
     file   = file_path,
@@ -42,8 +43,6 @@ prepareHMMData <- function() {
     sep    = ",",
     skip   = 0
   )
-  
-  
   if (preprocessing == "L2norm") {
     data$preprocessed <- sqrt(data$X_acceleration^2 + data$Y_acceleration^2)
   } else if (preprocessing == "onlyX") {
@@ -54,14 +53,13 @@ prepareHMMData <- function() {
     stop("Unbekannte Preprocessing-Methode: ", preprocessing)
   }
   
-  
-  # 6) moveHMM vorbereiten
+  # 6) Daten vorbereiten
   data$cum_x <- cumsum(data$preprocessed)
   data$cum_y <- 0
   
   hmm_data <- momentuHMM::prepData(data, type = "UTM", coordNames = c("cum_x", "cum_y"))
   
-  # 7) Adding different Temperature to the data if wanted
+  # 7) Adding Temperature to the data if wanted
   data_temp <- read.table("Data/Temperature/order_126368_data.txt"
                           , stringsAsFactors = FALSE, 
                           skip = 2,
@@ -88,28 +86,26 @@ prepareHMMData <- function() {
   }
   hmm_data$temp <- na.locf(hmm_data$temperature)
   
-  #todo tod und season
+  #create ToD and Season
   time_UTC <- ifelse(grepl("^\\d{4}-\\d{2}-\\d{2}$", hmm_data$time),
                           paste0(hmm_data$time, " 00:00:00"),
                           hmm_data$time)
-
-  # 3) Zeitspalte in POSIXct umwandeln (ggf. anpassen je nach Datenformat)
-  time_UTC <- as.POSIXct(time_UTC, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
-  # 2) Stunde/Minute extrahieren, in [0,24) umwandeln
+  #Zeitspalte in POSIXct umwandeln (ggf. anpassen je nach Datenformat)
+  time_UTC <- as.POSIXct(hmm_data$time, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+  #Stunde/Minute extrahieren, in [0,24) umwandeln
   hourNumeric <- as.numeric(format(time_UTC, "%H"))
   minNumeric  <- as.numeric(format(time_UTC, "%M"))
-  # => Stundenanteil  +  Minuten/60
+  
   hourOfDay   <- hourNumeric + minNumeric/60
   
-  # 3) Fraction in [0,1) => (hourOfDay / 24)
+  
   fracOfDay   <- hourOfDay / 24
   
-  # 4) Cosinus => 0 Uhr = Hochpunkt (cos(0)=1), 12 Uhr = Tiefpunkt (cos(pi)=-1)
+  #Cosinus => 0 Uhr = Hochpunkt (cos(0)=1), 12 Uhr = Tiefpunkt (cos(pi)=-1)
   ToD_values  <- cos(2 * pi * fracOfDay)
   
-  # 5) In hmm_data speichern (Zeilen-zu-Zeilen)
   hmm_data$ToD <- ToD_values
-  0
+  
   dayOfYear <- as.numeric(format(time_UTC, "%j"))
   tail(dayOfYear)
   
@@ -118,25 +114,47 @@ prepareHMMData <- function() {
   
   na_indices <- which(is.na(dayOfYear))
 
-  
   # Saisonalität als Cosinus => 1 ~ Sommer, -1 ~ Winter
   Season_values <- cos(2 * pi * fracOfYear)
   hmm_data$season <- Season_values
-  #nan durch vorgänger ersetzen
+
   # Season: fehlende Werte interpolieren und dann standardisieren
   hmm_data$season <- na.approx(hmm_data$season, na.rm = FALSE, rule = 2)
   cat("Es wurden", sum(is.na(hmm_data$season)), "fehlende Werte in 'season' ersetzt.\n")
-  hmm_data$season <- as.vector(scale(hmm_data$season))
   cat("Season: mean =", mean(hmm_data$season), "sd =", sd(hmm_data$season), "\n")
+  season_scaled <- scale(hmm_data$season)
+  season_center_param <<- attr(season_scaled, "scaled:center")  # Global speichern
+  season_scale_param  <<- attr(season_scaled, "scaled:scale")   # Global speichern
+  hmm_data$season <- as.vector(season_scaled)
+  
   # Temperature: fehlende Werte interpolieren und dann standardisieren
   hmm_data$temp <- na.approx(hmm_data$temp, na.rm = FALSE, rule = 2)
   cat("Es wurden", sum(is.na(hmm_data$temp)), "fehlende Werte in 'temp' ersetzt.\n")
-  hmm_data$temp <- as.vector(scale(hmm_data$temp))
   cat("temp: mean =", mean(hmm_data$temp), "sd =", sd(hmm_data$temp), "\n")
-  # Time of Day: fehlende Werte interpolieren und dann standardisieren
+  temp_scaled <- scale(hmm_data$temp)
+  temp_center_param <<- attr(temp_scaled, "scaled:center")  # Global speichern
+  temp_scale_param  <<- attr(temp_scaled, "scaled:scale")   # Global speichern
+  hmm_data$temp <- as.vector(temp_scaled)
+  
+  # Time of Day (ToD): fehlende Werte interpolieren und dann standardisieren
   hmm_data$ToD <- na.approx(hmm_data$ToD, na.rm = FALSE, rule = 2)
   cat("Es wurden", sum(is.na(hmm_data$ToD)), "fehlende Werte in 'ToD' ersetzt.\n")
-  hmm_data$ToD <- as.vector(scale(hmm_data$ToD))
   cat("ToD: mean =", mean(hmm_data$ToD), "sd =", sd(hmm_data$ToD), "\n")
+  ToD_scaled <- scale(hmm_data$ToD)
+  ToD_center_param <<- attr(ToD_scaled, "scaled:center")  # Global speichern
+  ToD_scale_param  <<- attr(ToD_scaled, "scaled:scale")   # Global speichern
+  hmm_data$ToD <- as.vector(ToD_scaled)
+  
+  
+  #Fehlende Werte interpolieren
+  hmm_data$evation <- na.approx(hmm_data$evation, na.rm = FALSE, rule = 2)
+  cat("Es wurden", sum(is.na(hmm_data$evation)), "fehlende Werte in 'evation' ersetzt.\n")
+  # Skalieren und dabei die Parameter in eigenen Variablen speichern
+  evation_scaled <- scale(hmm_data$evation)
+  evation_center_param <<- attr(evation_scaled, "scaled:center")  
+  evation_scale_param  <<- attr(evation_scaled, "scaled:scale")   
+  hmm_data$evation <- as.vector(evation_scaled)
+  
+  
   return(hmm_data)
 }
