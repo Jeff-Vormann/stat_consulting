@@ -1,6 +1,6 @@
 This chapters main use is to make the navigation of our Github repository easier to-do and for you to find what-ever information or plots you could want directly. We will also briefly talk about, how to use our code for different datasets, and what you need to understand to properly manage it.
 
-
+# Data
 This branchs only purpose is to save the data that we were provided with as well as the new Datasets that we created. If you don't want to adjust the code to try and run our models with different datasets you can ignore this branch.
 
 # Clean code
