@@ -1,0 +1,27 @@
+               Covariate      Beta Effekt_pro_SD Effekt_Szenario                          Szenario
+mean_2:ToD           ToD  0.007814      1.007844        1.022382 Unterschied Mitternacht zu Mittag
+mean_2:season     season -0.162918      0.849661        0.630683      Unterschied Winter zu Sommer
+mean_2:evation   evation  0.036893      1.037582        1.964230                       500 m Höher
+mean_2:temp         temp -0.002221      0.997781        0.997181                     5 Grad wärmer
+               Covariate     Beta Effekt_pro_SD Effekt_Szenario                          Szenario
+mean_3:ToD           ToD 0.043719      1.044689        1.131850 Unterschied Mitternacht zu Mittag
+mean_3:season     season 0.402207      1.495120        3.120468      Unterschied Winter zu Sommer
+mean_3:evation   evation 0.018443      1.018614        1.401413                       500 m Höher
+mean_3:temp         temp 0.000198      1.000198        1.000252                     5 Grad wärmer
+[1] 360.6245
+[1] 360.6245
+[1] 360.6245
+           ID      step angle     X                 time X_acceleration Y_acceleration temperature_intern temperature_extern
+44495 Animal1  2.236068     0 48538 2021-09-27T11:30:00Z              0              1                 23               13.2
+44496 Animal1 10.630146     0 48539 2021-09-27T11:35:00Z              1              2                 23               13.2
+44497 Animal1  2.236068     0 48540 2021-09-27T11:40:00Z              7              8                 23               13.2
+44498 Animal1  8.602325     0 48541 2021-09-27T11:45:00Z              1              2                 23               13.2
+44499 Animal1 68.410526     0 48542 2021-09-27T11:50:00Z              5              7                 23               13.2
+44500 Animal1 89.375612     0 48543 2021-09-27T11:55:00Z             54             42                 23               13.2
+      temperature_GPS   evation rain_24 preprocessed       x y temperature     temp       ToD     season
+44495              25 0.6094638       4     1.000000 3022705 0           7 1.190248 -1.400259 -0.1679946
+44496              24 0.6094638       4     2.236068 3022707 0           7 1.190248 -1.403958 -0.1679946
+44497              24 0.6094638       4    10.630146 3022717 0           7 1.190248 -1.406987 -0.1679946
+44498              23 0.6094638       4     2.236068 3022720 0           7 1.190248 -1.409345 -0.1679946
+44499              23 0.6094638       4     8.602325 3022728 0           7 1.190248 -1.411029 -0.1679946
+44500              23 0.6094638       4    68.410526 3022797 0           7 1.190248 -1.412040 -0.1679946

@@ -1,0 +1,75 @@
+               Covariate      Beta Effekt_pro_SD Effekt_Szenario                          Szenario
+mean_2:ToD           ToD  0.200864      1.222459        1.766889 Unterschied Mitternacht zu Mittag
+mean_2:season     season  0.845002      2.327983        9.014109      Unterschied Winter zu Sommer
+mean_2:evation   evation  0.006311      1.006331        1.008356                       500 m Höher
+mean_2:temp         temp -0.052726      0.948640        0.901014                     5 Grad wärmer
+$temp
+          State (3.3°C) (-1.8°C) Percentage_change
+State 1 State 1   31.08    31.16              0.24
+State 2 State 2   68.92    68.84             -0.11
+
+$evation
+          State (1377.9 m) (619.4 m) Percentage_change
+State 1 State 1      33.99     29.59            -12.93
+State 2 State 2      66.01     70.41              6.65
+
+$season
+          State (Summer) (Winter) Percentage_change
+State 1 State 1    87.32    42.34            -51.52
+State 2 State 2    12.68    57.66            354.83
+
+$ToD
+          State (Noon) (Midnight) Percentage_change
+State 1 State 1   6.67         60            799.77
+State 2 State 2  93.33         40            -57.15
+
+[1] "Impact on Odds of 1 -> 2"
+        Covariate      Beta Effekt_pro_SD Effekt_Szenario                          Szenario
+ToD           ToD  0.373590      1.452941        2.882623 Unterschied Mitternacht zu Mittag
+season     season -4.119370      0.016255        0.000022      Unterschied Winter zu Sommer
+evation   evation -0.518269      0.595551        0.504951                       500 m Höher
+temp         temp -0.058818      0.942879        0.890227                     5 Grad wärmer
+[1] "Impact on Odds of 1 -> 2"
+        Covariate      Beta Effekt_pro_SD Effekt_Szenario                          Szenario
+ToD           ToD -1.372636      0.253438        0.020448 Unterschied Mitternacht zu Mittag
+season     season -1.504408      0.222149        0.019948      Unterschied Winter zu Sommer
+evation   evation -0.136693      0.872238        0.835088                       500 m Höher
+temp         temp -0.033626      0.966933        0.935685                     5 Grad wärmer
+[1] "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+[1] "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+Value of the maximum log-likelihood: -3418.492 
+
+
+Regression coeffs for step parameters:
+--------------------------------------
+     mean_1:(Intercept) mean_1:ToD mean_1:season mean_1:evation mean_1:temp mean_2:(Intercept) mean_2:ToD mean_2:season
+[1,]          -1.297329 0.02779588      1.724833     -0.0231848 -0.06025458          0.9094434  0.2008642     0.8450021
+     mean_2:evation mean_2:temp sd_1:(Intercept) sd_2:(Intercept) zeromass_1:(Intercept) zeromass_2:(Intercept)
+[1,]    0.006311259 -0.05272558         -1.87753        0.9783135                4.02747              -20.65634
+
+step parameters (based on mean covariate values):
+-------------------------------------------------
+           state 1      state 2
+mean     1.2930269 5.325412e+00
+sd       0.1529674 2.659966e+00
+zeromass 0.9824926 1.069217e-09
+
+Regression coeffs for the transition probabilities:
+---------------------------------------------------
+                 1 -> 2      2 -> 1
+(Intercept)  0.47468254 -0.95225848
+ToD          0.37359009 -1.37263595
+season      -4.11936983 -1.50440817
+evation     -0.51826869 -0.13669273
+temp        -0.05881769 -0.03362602
+
+Transition probability matrix (based on mean covariate values):
+---------------------------------------------------------------
+          state 1    state 2
+state 1 0.9620839 0.03791609
+state 2 0.0895344 0.91046560
+
+Initial distribution:
+---------------------
+     state 1      state 2 
+1.026856e-21 1.000000e+00 
