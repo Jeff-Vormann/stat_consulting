@@ -7,7 +7,7 @@ name: TestRun1
 # - Deer
 # - Ursina
 # - Thomas
-dataset_name: Gams
+dataset_name: Deer
 
 # Vorverarbeitung
 # Möglichkeiten:
@@ -15,7 +15,7 @@ dataset_name: Gams
 # - onlyX         # Nur X-Achse
 # - XNotCensored  # X-Achse, nicht zensiert
 # - sum       # sum aus X und Y
-preprocessing: L2norm
+preprocessing: sum
 
 # Anzahl der HMM-Zustände
 # Beispiel: 2, 3, 4, ...
@@ -37,7 +37,7 @@ temperature: Extern
 #formula: "~temp"
 #formula: "~elevation"
 #formula: "~ToD + season +  evation + temp "
-formula: "~ToD + season +  evation + temp "
+formula: "~1"
 
 
 # Emission
@@ -46,5 +46,5 @@ formula: "~ToD + season +  evation + temp "
 #emission_mean: "~temp"
 #emission_mean: "~evation "
 #emission_mean: "~ToD + season + temp"
-emission_mean: "~ToD + season +  evation + temp "
+emission_mean: "~1"
 
