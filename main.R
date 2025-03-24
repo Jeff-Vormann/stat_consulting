@@ -33,7 +33,7 @@ rds_name <- paste0("clean_code/Rds/covariates/",
 
 
 #HMM-Training nur durchführen, wenn das RDS nicht existiert:
-if (file.exists("rds_name")) {
+if (file.exists(rds_name)) {
   cat("RDS existiert bereits. Lade Modell:", rds_name, "\n")
   hmm_model <- readRDS(rds_name)
 } else {
